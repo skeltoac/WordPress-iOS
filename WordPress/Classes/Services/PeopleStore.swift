@@ -7,7 +7,7 @@ class PeopleStore {
         remote = PeopleRemote(api: api)
     }
 
-    func getTeam(siteID: Int, search: String?) -> RACSignal {
+    func getTeam(siteID: Int, search: String?) -> RACSignal/*<RACBox<People>>*/ {
         return remote.getTeam(siteID, search: search)
     }
 }

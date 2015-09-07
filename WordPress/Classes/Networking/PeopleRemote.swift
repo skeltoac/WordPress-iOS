@@ -3,7 +3,7 @@ import Foundation
 struct PeopleRemote {
     let api: WordPressComApi
 
-    func getTeam(siteID: Int, search: String?) -> RACSignal {
+    func getTeam(siteID: Int, search: String?) -> RACSignal/*<RACBox<People>>*/ {
         let signal = RACSignal.createSignal {
             subscriber in
 
@@ -13,7 +13,7 @@ struct PeopleRemote {
             let operation = self.api.GET(path, parameters: parameters, success: {
                 _, users in
                 let mappedUsers = self.myCrappyUsersMapperThatShallBeReplaced(users, siteID)
-                subscriber.sendNext(mappedUsers as! AnyObject)
+                subscriber.sendNext(RACBox(mappedUsers))
                 subscriber.sendCompleted()
             }, failure: {
                 _, error in

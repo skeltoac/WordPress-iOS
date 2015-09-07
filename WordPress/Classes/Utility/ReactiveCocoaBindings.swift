@@ -42,6 +42,24 @@ public func RACObserve(target: NSObject!, keyPath: String) -> RACSignal {
 }
 
 extension RACStream {
+    func mapBoxed<T,U>(block: (T) -> U) -> Self {
+        return map({(value: AnyObject!) in
+            if let box = value as? RACBox<T> {
+                return RACBox(block(box.unbox()))
+            }
+            return nil
+        })
+    }
+
+    func filterBoxed<T>(block: (T) -> Bool) -> Self {
+        return filter({(value: AnyObject!) in
+            if let box = value as? RACBox<T> {
+                return block(box.unbox())
+            }
+            return false
+        })
+    }
+
     func mapAs<T,U: AnyObject>(block: (T) -> U) -> Self {
         return map({(value: AnyObject!) in
             if let casted = value as? T {
@@ -58,5 +76,18 @@ extension RACStream {
             }
             return false
         })
+    }
+}
+
+/** Wrapper class so we can pass non-class values around RACSignals */
+class RACBox<T> {
+    let value: T
+
+    init(_ value: T) {
+        self.value = value
+    }
+
+    func unbox() -> T {
+        return value
     }
 }

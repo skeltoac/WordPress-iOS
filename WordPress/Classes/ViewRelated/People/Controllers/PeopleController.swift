@@ -9,9 +9,13 @@ class PeopleController {
         self.store = PeopleStore(api: account.restApi)
     }
 
-    func getUsers() -> RACSignal {
-        return store.getTeam(siteID, search: nil).map {
-            return PeopleCellViewModel(person: $0) as AnyObject
+    func getUsers() -> RACSignal/*RACBox<Array<PeopleCellViewModel>>*/ {
+        return store.getTeam(siteID, search: nil).mapBoxed {
+            (people: People) -> [PeopleCellViewModel] in
+            return people.map {
+                person in
+                return PeopleCellViewModel(person: person)
+            }
         }
     }
 }
