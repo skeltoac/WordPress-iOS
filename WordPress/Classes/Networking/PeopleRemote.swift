@@ -3,6 +3,13 @@ import Foundation
 struct PeopleRemote {
     let api: WordPressComApi
 
+    /**
+    Gets people from the site's team
+
+    :param: siteID the ID of the site.
+    :param: search an optional search string.
+    :returns: A RACSignal that emits one People object and then completes
+    */
     func getTeam(siteID: Int, search: String?) -> RACSignal/*<RACBox<People>>*/ {
         let signal = RACSignal.createSignal {
             subscriber in
