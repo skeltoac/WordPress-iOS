@@ -55,6 +55,7 @@ typedef NS_ENUM(NSInteger, SiteVisibility) {
 @property (nonatomic, strong, readwrite) NSSet *themes;
 @property (nonatomic, strong, readwrite) NSSet *media;
 @property (nonatomic, strong, readwrite) NSSet *publicizers;
+@property (nonatomic, strong, readwrite) NSSet *sharers;
 @property (nonatomic, strong, readwrite) NSString *currentThemeId;
 @property (nonatomic, assign, readwrite) BOOL isSyncingPosts;
 @property (nonatomic, assign, readwrite) BOOL isSyncingPages;

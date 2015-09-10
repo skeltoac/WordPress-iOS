@@ -8,6 +8,8 @@ data model as well as any custom migrations.
 - Added `Publicizer` to store the services capable of publicizing
 - `Blog` added a new relationship called `publicizers` to store available Publicizers
 - `Blog` added a new attribute called `connections` to store the blog's connections array
+- Added `Sharer` to store the services with actionable sharing
+- `Blog` added a new relationship called `sharers` to store available Sharers
 
 ## WordPress 38 (@sergioestevao 2015-08-21)
 

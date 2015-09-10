@@ -142,7 +142,12 @@
         <relationship name="posts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="AbstractPost" inverseName="blog" inverseEntity="AbstractPost" indexed="YES">
             <userInfo/>
         </relationship>
-        <relationship name="publicizers" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Publicizer" inverseName="blog" inverseEntity="Publicizer" syncable="YES"/>
+        <relationship name="publicizers" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Publicizer" inverseName="blog" inverseEntity="Publicizer">
+            <userInfo/>
+        </relationship>
+        <relationship name="sharers" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Sharer" inverseName="blog" inverseEntity="Sharer">
+            <userInfo/>
+        </relationship>
         <relationship name="themes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Theme" inverseName="blog" inverseEntity="Theme" syncable="YES"/>
         <userInfo/>
     </entity>
@@ -411,6 +416,30 @@
         <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="readerTopics" inverseEntity="Account" syncable="YES"/>
         <relationship name="posts" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="ReaderPost" inverseName="topic" inverseEntity="ReaderPost" syncable="YES"/>
     </entity>
+    <entity name="Sharer" representedClassName="Sharer">
+        <attribute name="genericon" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <attribute name="name" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <attribute name="order" attributeType="Integer 32" defaultValueString="0">
+            <userInfo/>
+        </attribute>
+        <attribute name="preview" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <attribute name="service" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <attribute name="shortName" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <relationship name="blog" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Blog" inverseName="sharers" inverseEntity="Blog">
+            <userInfo/>
+        </relationship>
+        <userInfo/>
+    </entity>
     <entity name="SourcePostAttribution" representedClassName="SourcePostAttribution" syncable="YES">
         <attribute name="attributionType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="authorName" optional="YES" attributeType="String" syncable="YES"/>
@@ -444,7 +473,7 @@
         <element name="AbstractPost" positionX="0" positionY="0" width="128" height="135"/>
         <element name="Account" positionX="0" positionY="0" width="128" height="210"/>
         <element name="BasePost" positionX="0" positionY="0" width="128" height="300"/>
-        <element name="Blog" positionX="0" positionY="0" width="128" height="570"/>
+        <element name="Blog" positionX="0" positionY="0" width="128" height="613"/>
         <element name="Category" positionX="0" positionY="0" width="128" height="120"/>
         <element name="Comment" positionX="0" positionY="0" width="128" height="343"/>
         <element name="Media" positionX="0" positionY="0" width="128" height="375"/>
@@ -452,11 +481,12 @@
         <element name="Notification" positionX="18" positionY="162" width="128" height="255"/>
         <element name="Page" positionX="0" positionY="0" width="128" height="60"/>
         <element name="Post" positionX="0" positionY="0" width="128" height="180"/>
+        <element name="Publicizer" positionX="9" positionY="153" width="128" height="150"/>
         <element name="ReaderPost" positionX="0" positionY="0" width="128" height="30"/>
         <element name="ReaderSite" positionX="9" positionY="153" width="128" height="163"/>
         <element name="ReaderTopic" positionX="18" positionY="162" width="128" height="225"/>
         <element name="SourcePostAttribution" positionX="9" positionY="153" width="128" height="225"/>
         <element name="Theme" positionX="9" positionY="153" width="128" height="225"/>
-        <element name="Publicizer" positionX="9" positionY="153" width="128" height="150"/>
+        <element name="Sharer" positionX="18" positionY="288" width="128" height="150"/>
     </elements>
 </model>
