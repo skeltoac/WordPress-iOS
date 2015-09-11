@@ -198,7 +198,7 @@
     }
 
     for (Media *media in self.media) {
-        if (media.mediaType == MediaTypeImage || media.mediaType == MediaTypeFeatured) {
+        if (media.mediaType == MediaTypeImage) {
             return YES;
         }
     }
@@ -241,7 +241,7 @@
     NSSet *comments = [self.blog.comments filteredSetUsingPredicate:
                        [NSPredicate predicateWithFormat:@"(postID == %@) AND (post == NULL)", self.postID]];
     if ([comments count] > 0) {
-        [self.comments unionSet:comments];
+        [self addComments:comments];
     }
 }
 
@@ -258,7 +258,9 @@
     
     Media *featuredMedia = [[self.blog.media objectsPassingTest:^BOOL(id obj, BOOL *stop) {
         Media *media = (Media *)obj;
-        *stop = [self.post_thumbnail isEqualToNumber:media.mediaID];
+        if (media.mediaID) {
+            *stop = [self.post_thumbnail isEqualToNumber:media.mediaID];
+        }
         return *stop;
     }] anyObject];
 

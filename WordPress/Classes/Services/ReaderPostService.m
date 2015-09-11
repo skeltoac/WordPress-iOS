@@ -8,12 +8,12 @@
 #import "ReaderPost.h"
 #import "ReaderPostServiceRemote.h"
 #import "ReaderSiteService.h"
-#import "ReaderTopic.h"
 #import "RemoteReaderPost.h"
 #import "RemoteSourcePostAttribution.h"
 #import "SourcePostAttribution.h"
 #import "WordPressComApi.h"
 #import "WPAccount.h"
+#import "WordPress-Swift.h"
 
 NSUInteger const ReaderPostServiceNumberToSync = 20;
 NSUInteger const ReaderPostServiceTitleLength = 30;
@@ -34,7 +34,6 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 @property (nonatomic) NSUInteger backfillBatchNumber;
 @property (nonatomic, strong) NSMutableArray *backfilledRemotePosts;
 @property (nonatomic, strong) NSDate *backfillDate;
-@property (nonatomic) BOOL skippingSave;
 
 @end
 
@@ -45,17 +44,12 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 
 #pragma mark - Fetch Methods
 
-- (void)fetchPostsForTopic:(ReaderTopic *)topic success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
+- (void)fetchPostsForTopic:(ReaderAbstractTopic *)topic success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
 {
     [self fetchPostsForTopic:topic earlierThan:[NSDate date] success:success failure:failure];
 }
 
-- (void)fetchPostsForTopic:(ReaderTopic *)topic earlierThan:(NSDate *)date success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
-{
-    [self fetchPostsForTopic:topic earlierThan:date skippingSave:NO success:success failure:failure];
-}
-
-- (void)fetchPostsForTopic:(ReaderTopic *)topic earlierThan:(NSDate *)date skippingSave:(BOOL)skippingSave success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
+- (void)fetchPostsForTopic:(ReaderAbstractTopic *)topic earlierThan:(NSDate *)date success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
 {
     NSManagedObjectID *topicObjectID = topic.objectID;
     ReaderPostServiceRemote *remoteService = [[ReaderPostServiceRemote alloc] initWithApi:[self apiForRequest]];
@@ -63,7 +57,7 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
                                     count:ReaderPostServiceNumberToSync
                                    before:date
                                   success:^(NSArray *posts) {
-                                      [self mergePosts:posts earlierThan:date forTopic:topicObjectID skippingSave:skippingSave callingSuccess:success];
+                                      [self mergePosts:posts earlierThan:date forTopic:topicObjectID callingSuccess:success];
                                   } failure:^(NSError *error) {
                                       if (failure) {
                                           failure(error);
@@ -97,12 +91,7 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
     }];
 }
 
-- (void)backfillPostsForTopic:(ReaderTopic *)topic success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
-{
-    [self backfillPostsForTopic:topic skippingSave:NO success:success failure:failure];
-}
-
-- (void)backfillPostsForTopic:(ReaderTopic *)topic skippingSave:(BOOL)skippingSave success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
+- (void)backfillPostsForTopic:(ReaderAbstractTopic *)topic success:(void (^)(NSInteger count, BOOL hasMore))success failure:(void (^)(NSError *error))failure
 {
     NSManagedObjectID *topicObjectID = topic.objectID;
     ReaderPost *post = [self newestPostForTopic:topicObjectID];
@@ -114,7 +103,6 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
     }
     state.backfillBatchNumber = 0;
     state.backfilledRemotePosts = [NSMutableArray array];
-    state.skippingSave = skippingSave;
 
     [self fetchPostsToBackfillTopic:topicObjectID
                         earlierThan:[NSDate date]
@@ -127,59 +115,73 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 
 - (void)toggleLikedForPost:(ReaderPost *)post success:(void (^)())success failure:(void (^)(NSError *error))failure
 {
-    // Get a the post in our own context
-    NSError *error;
-    ReaderPost *readerPost = (ReaderPost *)[self.managedObjectContext existingObjectWithID:post.objectID error:&error];
-    if (error) {
-        if (failure) {
-            failure(error);
+    [self.managedObjectContext performBlock:^{
+
+        // Get a the post in our own context
+        NSError *error;
+        ReaderPost *readerPost = (ReaderPost *)[self.managedObjectContext existingObjectWithID:post.objectID error:&error];
+        if (error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (failure) {
+                    failure(error);
+                }
+            });
+            return;
         }
-        return;
-    }
 
-    // Keep previous values in case of failure
-    BOOL oldValue = readerPost.isLiked;
-    BOOL like = !oldValue;
-    NSNumber *oldCount = [readerPost.likeCount copy];
+        // Keep previous values in case of failure
+        BOOL oldValue = readerPost.isLiked;
+        BOOL like = !oldValue;
+        NSNumber *oldCount = [readerPost.likeCount copy];
 
-    // Optimistically update
-    readerPost.isLiked = like;
-    if (like) {
-        readerPost.likeCount = @([readerPost.likeCount integerValue] + 1);
-    } else {
-        readerPost.likeCount = @([readerPost.likeCount integerValue] - 1);
-    }
-    [self.managedObjectContext performBlockAndWait:^{
+        // Optimistically update
+        readerPost.isLiked = like;
+        if (like) {
+            readerPost.likeCount = @([readerPost.likeCount integerValue] + 1);
+        } else {
+            readerPost.likeCount = @([readerPost.likeCount integerValue] - 1);
+        }
         [[ContextManager sharedInstance] saveContext:self.managedObjectContext];
+
+
+        // Define success block. Make sure work is performed on the main queue
+        void (^successBlock)() = ^void() {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (like) {
+                    [WPAnalytics track:WPAnalyticsStatReaderLikedArticle];
+                }
+                if (success) {
+                    success();
+                }
+            });
+        };
+
+        // Define failure block. Make sure rollback happens in the moc's queue,
+        // and failure is called on the main queue.
+        void (^failureBlock)(NSError *error) = ^void(NSError *error) {
+            [self.managedObjectContext performBlockAndWait:^{
+                // Revert changes on failure
+                readerPost.isLiked = oldValue;
+                readerPost.likeCount = oldCount;
+
+                [[ContextManager sharedInstance] saveContext:self.managedObjectContext];
+            }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (failure) {
+                    failure(error);
+                }
+            });
+        };
+
+        // Call the remote service.
+        ReaderPostServiceRemote *remoteService = [[ReaderPostServiceRemote alloc] initWithApi:[self apiForRequest]];
+        if (like) {
+            [remoteService likePost:[readerPost.postID integerValue] forSite:[readerPost.siteID integerValue] success:successBlock failure:failureBlock];
+        } else {
+            [remoteService unlikePost:[readerPost.postID integerValue] forSite:[readerPost.siteID integerValue] success:successBlock failure:failureBlock];
+        }
+
     }];
-
-    // Define success block
-    void (^successBlock)() = ^void() {
-        if (success) {
-            success();
-        }
-    };
-
-    // Define failure block
-    void (^failureBlock)(NSError *error) = ^void(NSError *error) {
-        // Revert changes on failure
-        readerPost.isLiked = oldValue;
-        readerPost.likeCount = oldCount;
-        [self.managedObjectContext performBlockAndWait:^{
-            [[ContextManager sharedInstance] saveContext:self.managedObjectContext];
-        }];
-        if (failure) {
-            failure(error);
-        }
-    };
-
-    // Call the remote service
-    ReaderPostServiceRemote *remoteService = [[ReaderPostServiceRemote alloc] initWithApi:[self apiForRequest]];
-    if (like) {
-        [remoteService likePost:[readerPost.postID integerValue] forSite:[readerPost.siteID integerValue] success:successBlock failure:failureBlock];
-    } else {
-        [remoteService unlikePost:[readerPost.postID integerValue] forSite:[readerPost.siteID integerValue] success:successBlock failure:failureBlock];
-    }
 }
 
 - (void)setFollowing:(BOOL)following
@@ -275,70 +277,6 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
     }
 }
 
-
-
-- (void)reblogPost:(ReaderPost *)post toSite:(NSUInteger)siteID note:(NSString *)note success:(void (^)())success failure:(void (^)(NSError *error))failure
-{
-    // Get a the post in our own context
-    NSError *error;
-    ReaderPost *readerPost = (ReaderPost *)[self.managedObjectContext existingObjectWithID:post.objectID error:&error];
-    if (error) {
-        if (failure) {
-            failure(error);
-        }
-        return;
-    }
-
-    // Do not reblog a post on a private blog
-    if (readerPost.isBlogPrivate) {
-        if (failure) {
-            NSDictionary *userInfo = @{NSLocalizedDescriptionKey:NSLocalizedString(@"Posts belonging to private blogs may not be reblogged.", @"An error description explaining that posts from private blogs may not be reblogged.")};
-            failure([NSError errorWithDomain:ReaderPostServiceErrorDomain code:0 userInfo:userInfo]);
-        }
-        return;
-    }
-
-    // Optimisitically save
-    readerPost.isReblogged = YES;
-    [self.managedObjectContext performBlockAndWait:^{
-        [[ContextManager sharedInstance] saveContext:self.managedObjectContext];
-    }];
-
-    // Define failure block
-    void (^failureBlock)(NSError *error) = ^void(NSError *error) {
-        readerPost.isReblogged = NO;
-        [self.managedObjectContext performBlockAndWait:^{
-            [[ContextManager sharedInstance] saveContext:self.managedObjectContext];
-        }];
-        if (failure) {
-            failure(error);
-        }
-    };
-
-    // Define success block
-    void (^successBlock)(BOOL isReblogged) = ^void(BOOL isReblogged) {
-        if (!isReblogged) {
-            // This is a failsafe. If we receive a success from the REST api, and
-            // isReblogged is false then either the user has disabled rebloging,
-            // or its not a wpcom blog. We shouldn't reach this point but just in case...
-            NSString *description = NSLocalizedString(@"Reblogging might not be permitted for this post.", @"An error description explaining that a post could not be reblogged.");
-            NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : description };
-            NSError *error = [NSError errorWithDomain:ReaderPostServiceErrorDomain code:0 userInfo:userInfo];
-            failureBlock(error);
-        } else if (success) {
-            success();
-        }
-    };
-
-    ReaderPostServiceRemote *remoteService = [[ReaderPostServiceRemote alloc] initWithApi:[self apiForRequest]];
-    [remoteService reblogPost:[readerPost.postID integerValue]
-                     fromSite:[readerPost.siteID integerValue]
-                       toSite:siteID
-                         note:note
-                      success:successBlock
-                      failure:failureBlock];
-}
-
 - (void)deletePostsWithNoTopic
 {
     NSError *error;
@@ -384,7 +322,7 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
     }];
 }
 
-- (void)deletePostsWithSiteID:(NSNumber *)siteID andSiteURL:(NSString *)siteURL fromTopic:(ReaderTopic *)topic
+- (void)deletePostsWithSiteID:(NSNumber *)siteID andSiteURL:(NSString *)siteURL fromTopic:(ReaderAbstractTopic *)topic
 {
     NSError *error;
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"ReaderPost"];
@@ -475,7 +413,7 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
     return api;
 }
 
-- (NSUInteger)numberOfPostsForTopic:(ReaderTopic *)topic
+- (NSUInteger)numberOfPostsForTopic:(ReaderAbstractTopic *)topic
 {
     NSError *error;
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"ReaderPost"];
@@ -492,19 +430,19 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 /**
  Retrieve the newest post for the specified topic
 
- @param topicObjectID The `NSManagedObjectID` of the ReaderTopic for the post
+ @param topicObjectID The `NSManagedObjectID` of the ReaderAbstractTopic for the post
  @return The newest post in Core Data for the topic, or nil.
  */
 - (ReaderPost *)newestPostForTopic:(NSManagedObjectID *)topicObjectID
 {
     NSError *error;
-    ReaderTopic *topic = (ReaderTopic *)[self.managedObjectContext existingObjectWithID:topicObjectID error:&error];
+    ReaderAbstractTopic *topic = (ReaderAbstractTopic *)[self.managedObjectContext existingObjectWithID:topicObjectID error:&error];
     if (error) {
         DDLogError(@"%@, error fetching topic from NSManagedObjectID : %@", NSStringFromSelector(_cmd), error);
         return nil;
     }
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"ReaderPost"];
-    NSPredicate *pred = [NSPredicate predicateWithFormat:@"topic == %@", topic];
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"topic = %@", topic];
     [fetchRequest setPredicate:pred];
     fetchRequest.fetchLimit = 1;
 
@@ -539,7 +477,7 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
                           failure:(void (^)(NSError *error))failure
 {
     NSError *error;
-    ReaderTopic *topic = (ReaderTopic *)[self.managedObjectContext existingObjectWithID:topicObjectID error:&error];
+    ReaderAbstractTopic *topic = (ReaderAbstractTopic *)[self.managedObjectContext existingObjectWithID:topicObjectID error:&error];
     if (error) {
         DDLogError(@"%@, error fetching topic from NSManagedObjectID : %@", NSStringFromSelector(_cmd), error);
         if (failure) {
@@ -589,7 +527,7 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 
     if (state.backfillBatchNumber > ReaderPostServiceMaxBatchesToBackfill || oldestDate == [state.backfillDate earlierDate:oldestDate]) {
         // our work is done
-        [self mergePosts:state.backfilledRemotePosts earlierThan:[NSDate date] forTopic:topicObjectID skippingSave:state.skippingSave callingSuccess:success];
+        [self mergePosts:state.backfilledRemotePosts earlierThan:[NSDate date] forTopic:topicObjectID callingSuccess:success];
     } else {
         [self fetchPostsToBackfillTopic:topicObjectID earlierThan:oldestDate backfillState:state success:success failure:failure];
     }
@@ -603,27 +541,26 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 
  @param posts An array of RemoteReaderPost objects
  @param date The `before` date posts were requested.
- @param topicObjectID The ObjectID of the ReaderTopic to assign to the newly created posts.
+ @param topicObjectID The ObjectID of the ReaderAbstractTopic to assign to the newly created posts.
  @param success block called on a successful fetch which should be performed after merging
  */
 - (void)mergePosts:(NSArray *)posts
        earlierThan:(NSDate *)date
           forTopic:(NSManagedObjectID *)topicObjectID
-      skippingSave:(BOOL)skippingSave
     callingSuccess:(void (^)(NSInteger count, BOOL hasMore))success
 {
     // Use a performBlock here so the work to merge does not block the main thread.
     [self.managedObjectContext performBlock:^{
 
         if (self.managedObjectContext.parentContext == [[ContextManager sharedInstance] mainContext]) {
-            // Its possible the ReaderTopic was deleted the parent main context.
+            // Its possible the ReaderAbstractTopic was deleted the parent main context.
             // If so, and we merge and save, it will cause a crash.
             // Reset the context so it will be current with its parent context.
             [self.managedObjectContext reset];
         }
 
         NSError *error;
-        ReaderTopic *readerTopic = (ReaderTopic *)[self.managedObjectContext existingObjectWithID:topicObjectID error:&error];
+        ReaderAbstractTopic *readerTopic = (ReaderAbstractTopic *)[self.managedObjectContext existingObjectWithID:topicObjectID error:&error];
         if (error || !readerTopic) {
             // if there was an error or the topic was deleted just bail.
             if (success) {
@@ -643,16 +580,13 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
         [self deletePostsFromBlockedSites];
         readerTopic.lastSynced = [NSDate date];
 
-        if (!skippingSave) {
-            // performBlockAndWait here so we know our objects are saved before we call success.
-            [self.managedObjectContext performBlockAndWait:^{
-                [[ContextManager sharedInstance] saveContext:self.managedObjectContext];
-            }];
-        }
-        if (success) {
-            BOOL hasMore = ((postsCount > 0 ) && ([self numberOfPostsForTopic:readerTopic] < ReaderPostServiceMaxPosts));
-            success(postsCount, hasMore);
-        }
+        BOOL hasMore = ((postsCount > 0 ) && ([self numberOfPostsForTopic:readerTopic] < ReaderPostServiceMaxPosts));
+        [[ContextManager sharedInstance] saveContext:self.managedObjectContext withCompletionBlock:^{
+            // Is called on main queue
+            if (success) {
+                success(postsCount, hasMore);
+            }
+        }];
     }];
 }
 
@@ -662,15 +596,15 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
  from the result set (deleted, unliked, etc.) rendering the result set empty.
 
  @param date The date to delete posts earlier than.
- @param topic The ReaderTopic to delete posts from.
+ @param topic The `ReaderAbstractTopic` to delete posts from.
  */
-- (void)deletePostsEarlierThan:(NSDate *)date forTopic:(ReaderTopic *)topic
+- (void)deletePostsEarlierThan:(NSDate *)date forTopic:(ReaderAbstractTopic *)topic
 {
     // Don't trust the relationships on the topic to be current or correct.
     NSError *error;
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"ReaderPost"];
 
-    NSPredicate *pred = [NSPredicate predicateWithFormat:@"topic == %@ AND sortDate < %@", topic, date];
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"topic = %@ AND sortDate < %@", topic, date];
 
     [fetchRequest setPredicate:pred];
 
@@ -698,11 +632,11 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 
  The managed object context is not saved.
 
- @param topic The ReaderTopic to delete posts from.
+ @param topic The ReaderAbstractTopic to delete posts from.
  @param posts The batch of posts to use as a filter.
  @param startingDate The starting date of the batch of posts. May be earlier than the earliest post in the batch.
  */
-- (void)deletePostsForTopic:(ReaderTopic *)topic missingFromBatch:(NSArray *)posts withStartingDate:(NSDate *)startingDate
+- (void)deletePostsForTopic:(ReaderAbstractTopic *)topic missingFromBatch:(NSArray *)posts withStartingDate:(NSDate *)startingDate
 {
     // Don't trust the relationships on the topic to be current or correct.
     NSError *error;
@@ -736,15 +670,15 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
 
  The managed object context is not saved.
 
- @param topic the `ReaderTopic` to delete posts from.
+ @param topic the `ReaderAbstractTopic` to delete posts from.
  */
-- (void)deletePostsInExcessOfMaxAllowedForTopic:(ReaderTopic *)topic
+- (void)deletePostsInExcessOfMaxAllowedForTopic:(ReaderAbstractTopic *)topic
 {
     // Don't trust the relationships on the topic to be current or correct.
     NSError *error;
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"ReaderPost"];
 
-    NSPredicate *pred = [NSPredicate predicateWithFormat:@"topic == %@", topic];
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"topic = %@", topic];
     [fetchRequest setPredicate:pred];
 
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"sortDate" ascending:NO];
@@ -802,10 +736,10 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
  for each one.
 
  @param posts An array of `RemoteReaderPost` objects.
- @param topic The `ReaderTopic` to assign to the created posts.
+ @param topic The `ReaderAbsractTopic` to assign to the created posts.
  @return An array of `ReaderPost` objects
  */
-- (NSMutableArray *)makeNewPostsFromRemotePosts:(NSArray *)posts forTopic:(ReaderTopic *)topic
+- (NSMutableArray *)makeNewPostsFromRemotePosts:(NSArray *)posts forTopic:(ReaderAbstractTopic *)topic
 {
     NSMutableArray *newPosts = [NSMutableArray array];
     for (RemoteReaderPost *post in posts) {
@@ -823,10 +757,10 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
  Create a `ReaderPost` model object from the specified dictionary.
 
  @param dict A `RemoteReaderPost` object.
- @param topic The `ReaderTopic` to assign to the created post.
+ @param topic The `ReaderAbstractTopic` to assign to the created post.
  @return A `ReaderPost` model object whose properties are populated with the values from the passed dictionary.
  */
-- (ReaderPost *)createOrReplaceFromRemotePost:(RemoteReaderPost *)remotePost forTopic:(ReaderTopic *)topic
+- (ReaderPost *)createOrReplaceFromRemotePost:(RemoteReaderPost *)remotePost forTopic:(ReaderAbstractTopic *)topic
 {
     NSError *error;
     ReaderPost *post;
@@ -874,6 +808,16 @@ static NSString * const SourceAttributionStandardTaxonomy = @"standard-pick";
     post.isSharingEnabled = remotePost.isSharingEnabled;
     post.isLikesEnabled = remotePost.isLikesEnabled;
     post.isSiteBlocked = NO;
+
+    post.primaryTag = remotePost.primaryTag;
+    post.primaryTagSlug = remotePost.primaryTagSlug;
+    post.secondaryTag = remotePost.secondaryTag;
+    post.secondaryTagSlug = remotePost.secondaryTagSlug;
+    post.isExternal = remotePost.isExternal;
+    post.isJetpack = remotePost.isJetpack;
+    post.wordCount = remotePost.wordCount;
+    post.readingTime = remotePost.readingTime;
+
     if (remotePost.sourceAttribution) {
         post.sourceAttribution = [self createOrReplaceFromRemoteDiscoverAttribution:remotePost.sourceAttribution forPost:post];
     } else {

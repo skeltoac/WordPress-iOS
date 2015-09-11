@@ -8,6 +8,7 @@ typedef NS_ENUM(NSUInteger, SourceAttributionStyle) {
 };
 
 @protocol ReaderPostContentProvider <WPContentViewProvider>
+- (NSURL *)blavatarForDisplayOfSize:(NSInteger)size;
 - (SourceAttributionStyle)sourceAttributionStyle;
 - (NSString *)sourceAuthorNameForDisplay;
 - (NSURL *)sourceAuthorURLForDisplay;
@@ -15,6 +16,7 @@ typedef NS_ENUM(NSUInteger, SourceAttributionStyle) {
 - (NSString *)sourceBlogNameForDisplay;
 - (NSURL *)sourceBlogURLForDisplay;
 
+- (NSString *)likeCountForDisplay;
 - (NSNumber *)commentCount;
 - (NSNumber *)likeCount;
 - (BOOL)commentsOpen;

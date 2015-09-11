@@ -497,7 +497,10 @@ NSString * const ReaderPixelStatReferrer = @"https://wordpress.com/";
 
 - (void)contentViewDidReceiveAvatarAction:(UIView *)contentView
 {
-    ReaderBrowseSiteViewController *controller = [[ReaderBrowseSiteViewController alloc] initWithPost:self.post];
+    NSNumber *siteID = self.post.siteID;
+    NSString *siteURL = self.post.blogURL;
+    BOOL isWPcom = self.post.isWPCom;
+    ReaderBrowseSiteViewController *controller = [[ReaderBrowseSiteViewController alloc] initWithSiteID:siteID siteURL:siteURL isWPcom:isWPcom];
     [self.navigationController pushViewController:controller animated:YES];
 }
 
@@ -506,12 +509,8 @@ NSString * const ReaderPixelStatReferrer = @"https://wordpress.com/";
     ReaderPost *post = self.post;
     NSManagedObjectContext *context = [[ContextManager sharedInstance] mainContext];
     ReaderPostService *service = [[ReaderPostService alloc] initWithManagedObjectContext:context];
-    [service toggleLikedForPost:post success:^{
-        if (post.isLiked) {
-            [WPAnalytics track:WPAnalyticsStatReaderLikedArticle];
-        }
-    } failure:^(NSError *error) {
-        DDLogError(@"Error Liking Post : %@", [error localizedDescription]);
+    [service toggleLikedForPost:post success:nil failure:^(NSError *error) {
+        DDLogError(@"Error (un)liking post : %@", [error localizedDescription]);
         [postView updateActionButtons];
     }];
     [postView updateActionButtons];

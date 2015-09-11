@@ -9,7 +9,7 @@ extension WPStyleGuide
 
     // MARK: Original Post/Site Attribution Styles. 
 
-    public class func originalAttributionParagraphAttributes() -> [NSObject: AnyObject] {
+    public class func originalAttributionParagraphAttributes() -> [String: AnyObject] {
         let fontSize = originalAttributionFontSize()
         let font = WPFontManager.openSansRegularFontOfSize(fontSize)
 
@@ -24,10 +24,10 @@ extension WPStyleGuide
         ]
     }
 
-    public class func siteAttributionParagraphAttributes() -> [NSObject: AnyObject] {
+    public class func siteAttributionParagraphAttributes() -> [String: AnyObject] {
         let attributes = NSMutableDictionary(dictionary: originalAttributionParagraphAttributes())
         attributes.setValue(mediumBlue(), forKey: NSForegroundColorAttributeName)
-        return attributes as [NSObject: AnyObject]
+        return NSDictionary(dictionary: attributes) as! [String: AnyObject]
     }
 
     public class func originalAttributionFontSize() -> CGFloat {
@@ -47,14 +47,14 @@ extension WPStyleGuide
         return UIColor(red: 135/255.0, green: 166/255.0, blue: 188/255.0, alpha: 1.0)
     }
 
-    // MARK: - Attributed Text Attributes
+    // MARK: - Card Attributed Text Attributes
 
     public class func readerCardTitleAttributes() -> [NSObject: AnyObject] {
         let fontSize = Cards.titleFontSize
         let font = WPFontManager.merriweatherBoldFontOfSize(fontSize)
 
         let lineHeight = Cards.titleLineHeight
-        var paragraphStyle = NSMutableParagraphStyle()
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.minimumLineHeight = lineHeight
         paragraphStyle.maximumLineHeight = lineHeight
 
@@ -69,7 +69,7 @@ extension WPStyleGuide
         let font = WPFontManager.merriweatherRegularFontOfSize(fontSize)
 
         let lineHeight = Cards.defaultLineHeight
-        var paragraphStyle = NSMutableParagraphStyle()
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.minimumLineHeight = lineHeight
         paragraphStyle.maximumLineHeight = lineHeight
 
@@ -84,7 +84,7 @@ extension WPStyleGuide
         let font = WPFontManager.openSansRegularFontOfSize(fontSize)
 
         let lineHeight = Cards.defaultLineHeight
-        var paragraphStyle = NSMutableParagraphStyle()
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.minimumLineHeight = lineHeight
         paragraphStyle.maximumLineHeight = lineHeight
 
@@ -100,7 +100,7 @@ extension WPStyleGuide
         let font = WPFontManager.openSansRegularFontOfSize(fontSize)
 
         let lineHeight = Cards.defaultLineHeight
-        var paragraphStyle = NSMutableParagraphStyle()
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.minimumLineHeight = lineHeight
         paragraphStyle.maximumLineHeight = lineHeight
 
@@ -112,20 +112,32 @@ extension WPStyleGuide
     }
 
 
-    // MARK: - Apply Styles
+    // MARK: - Stream Header Attributed Text Attributes
 
-    public class func applyReaderCardSiteButtonActiveStyle(button:UIButton) {
+    public class func readerStreamHeaderDescriptionAttributes() -> [NSObject: AnyObject] {
+        let fontSize = Cards.contentFontSize
+        let font = WPFontManager.merriweatherRegularFontOfSize(fontSize)
+
+        let lineHeight = Cards.defaultLineHeight
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.minimumLineHeight = lineHeight
+        paragraphStyle.maximumLineHeight = lineHeight
+
+        return [
+            NSParagraphStyleAttributeName: paragraphStyle,
+            NSFontAttributeName: font
+        ]
+    }
+
+
+    // MARK: - Apply Card Styles
+
+    public class func applyReaderCardSiteButtonStyle(button:UIButton) {
         let fontSize = Cards.buttonFontSize
         button.titleLabel!.font = WPFontManager.openSansRegularFontOfSize(fontSize)
         button.setTitleColor(mediumBlue(), forState: .Normal)
         button.setTitleColor(lightBlue(), forState: .Highlighted)
-    }
-
-    public class func applyReaderCardSiteButtonInactiveStyle(button:UIButton) {
-        let fontSize = Cards.buttonFontSize
-        button.titleLabel!.font = WPFontManager.openSansRegularFontOfSize(fontSize)
-        button.setTitleColor(greyDarken20(), forState: .Normal)
-        button.setTitleColor(greyDarken20(), forState: .Highlighted)
+        button.setTitleColor(greyDarken20(), forState: .Disabled)
     }
 
     public class func applyReaderCardBylineLabelStyle(label:UILabel) {
@@ -153,8 +165,69 @@ extension WPStyleGuide
         let fontSize = Cards.buttonFontSize
         button.setTitleColor(grey(), forState: .Normal)
         button.setTitleColor(lightBlue(), forState: .Highlighted)
+        button.setTitleColor(jazzyOrange(), forState: .Selected)
         button.titleLabel?.font = WPFontManager.openSansRegularFontOfSize(fontSize)
     }
+
+
+    // MARK: - Apply Stream Header Styles
+
+    public class func applyReaderStreamHeaderTitleStyle(label:UILabel) {
+        let fontSize:CGFloat = 14.0
+        label.font = WPFontManager.openSansRegularFontOfSize(fontSize)
+        label.textColor = grey()
+    }
+
+    public class func applyReaderStreamHeaderDetailStyle(label:UILabel) {
+        let fontSize:CGFloat = 12.0
+        label.font = WPFontManager.openSansRegularFontOfSize(fontSize)
+        label.textColor = grey()
+    }
+
+    public class func applyReaderStreamHeaderFollowingStyle(button:UIButton) {
+        let fontSize = Cards.buttonFontSize
+        let title = NSLocalizedString("Following", comment: "Gerund. A button label indicating the user is currently subscribed to a topic or site in ther eader. Tapping unsubscribes the user.")
+
+        button.setTitle(title, forState: .Normal)
+        button.setTitle(title, forState: .Highlighted)
+
+        button.setTitleColor(validGreen(), forState: .Normal)
+        button.setTitleColor(lightBlue(), forState: .Highlighted)
+        button.titleLabel?.font = WPFontManager.openSansRegularFontOfSize(fontSize)
+
+        button.setImage(UIImage(named: "icon-reader-following"), forState: .Normal)
+        button.setImage(UIImage(named: "icon-reader-follow-highlight"), forState: .Highlighted)
+    }
+
+    public class func applyReaderStreamHeaderNotFollowingStyle(button:UIButton) {
+        let fontSize = Cards.buttonFontSize
+        let title = NSLocalizedString("Follow", comment: "Verb. A button label. Tapping subscribes the user to a topic or site in the reader")
+
+        button.setTitle(title, forState: .Normal)
+        button.setTitle(title, forState: .Highlighted)
+
+        button.setTitleColor(greyLighten10(), forState: .Normal)
+        button.setTitleColor(lightBlue(), forState: .Highlighted)
+        button.titleLabel?.font = WPFontManager.openSansRegularFontOfSize(fontSize)
+
+        button.setImage(UIImage(named: "icon-reader-follow"), forState: .Normal)
+        button.setImage(UIImage(named: "icon-reader-follow-highlight"), forState: .Highlighted)
+    }
+
+    public class func applyReaderSiteStreamDescriptionStyle(label:UILabel) {
+        let fontSize = Cards.contentFontSize
+        label.font = WPFontManager.merriweatherRegularFontOfSize(fontSize)
+        label.textColor = darkGrey()
+    }
+
+    public class func applyReaderSiteStreamCountStyle(label:UILabel) {
+        let fontSize:CGFloat = 12.0
+        label.font = WPFontManager.openSansRegularFontOfSize(fontSize)
+        label.textColor = grey()
+    }
+
+
+    // MARK: - Metrics
 
     public struct Cards
     {
