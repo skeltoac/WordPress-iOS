@@ -1,10 +1,12 @@
 import Foundation
 
-class PeopleStore {
+struct PeopleStore {
+    let cache: PeopleCache.personCacheType
     let remote: PeopleRemote
 
-    init(api: WordPressComApi) {
-        remote = PeopleRemote(api: api)
+    init(api: WordPressComApi, cache: PeopleCache.personCacheType = PeopleCache.sharedPersonCache) {
+        self.cache = cache
+        self.remote = PeopleRemote(api: api)
     }
 
     func getTeam(siteID: Int, search: String?) -> RACSignal/*<RACBox<People>>*/ {
