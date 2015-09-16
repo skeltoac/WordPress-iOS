@@ -585,6 +585,9 @@
 		FA7D87CB1B82810500B608B9 /* Publicizer.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7D87CA1B82810500B608B9 /* Publicizer.m */; };
 		FA7D87CE1B82814800B608B9 /* PublicizerServiceRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7D87CD1B82814800B608B9 /* PublicizerServiceRemote.m */; };
 		FA7D87D11B82816400B608B9 /* RemotePublicizer.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7D87D01B82816400B608B9 /* RemotePublicizer.m */; };
+		FA88B4221BA8B40E005D9A22 /* SharerService.m in Sources */ = {isa = PBXBuildFile; fileRef = FA88B4211BA8B40E005D9A22 /* SharerService.m */; settings = {ASSET_TAGS = (); }; };
+		FA88B4251BA8BC76005D9A22 /* RemoteSharer.m in Sources */ = {isa = PBXBuildFile; fileRef = FA88B4241BA8BC76005D9A22 /* RemoteSharer.m */; settings = {ASSET_TAGS = (); }; };
+		FA88B4281BA8C00D005D9A22 /* SharerServiceRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = FA88B4271BA8C00D005D9A22 /* SharerServiceRemote.m */; settings = {ASSET_TAGS = (); }; };
 		FD21397F13128C5300099582 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FD21397E13128C5300099582 /* libiconv.dylib */; };
 		FD3D6D2C1349F5D30061136A /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD3D6D2B1349F5D30061136A /* ImageIO.framework */; };
 		FD75DDAD15B021C80043F12C /* UIViewController+Rotation.m in Sources */ = {isa = PBXBuildFile; fileRef = FD75DDAC15B021C80043F12C /* UIViewController+Rotation.m */; };
@@ -1647,6 +1650,12 @@
 		FA7D87CD1B82814800B608B9 /* PublicizerServiceRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PublicizerServiceRemote.m; sourceTree = "<group>"; };
 		FA7D87CF1B82816400B608B9 /* RemotePublicizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RemotePublicizer.h; path = "Remote Objects/RemotePublicizer.h"; sourceTree = "<group>"; };
 		FA7D87D01B82816400B608B9 /* RemotePublicizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RemotePublicizer.m; path = "Remote Objects/RemotePublicizer.m"; sourceTree = "<group>"; };
+		FA88B4201BA8B40E005D9A22 /* SharerService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharerService.h; sourceTree = "<group>"; };
+		FA88B4211BA8B40E005D9A22 /* SharerService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharerService.m; sourceTree = "<group>"; };
+		FA88B4231BA8BC76005D9A22 /* RemoteSharer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RemoteSharer.h; path = "Remote Objects/RemoteSharer.h"; sourceTree = "<group>"; };
+		FA88B4241BA8BC76005D9A22 /* RemoteSharer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RemoteSharer.m; path = "Remote Objects/RemoteSharer.m"; sourceTree = "<group>"; };
+		FA88B4261BA8C00D005D9A22 /* SharerServiceRemote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharerServiceRemote.h; sourceTree = "<group>"; };
+		FA88B4271BA8C00D005D9A22 /* SharerServiceRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharerServiceRemote.m; sourceTree = "<group>"; };
 		FD0D42C11499F31700F5E115 /* WordPress 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "WordPress 4.xcdatamodel"; sourceTree = "<group>"; };
 		FD21397E13128C5300099582 /* libiconv.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		FD374343156CF4B800BAB5B5 /* WordPress 6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "WordPress 6.xcdatamodel"; sourceTree = "<group>"; };
@@ -2487,8 +2496,6 @@
 				E149D64B19349E69006A843D /* MediaServiceRemoteREST.m */,
 				E149D64C19349E69006A843D /* MediaServiceRemoteXMLRPC.h */,
 				E149D64D19349E69006A843D /* MediaServiceRemoteXMLRPC.m */,
-				FA7D87CC1B82814800B608B9 /* PublicizerServiceRemote.h */,
-				FA7D87CD1B82814800B608B9 /* PublicizerServiceRemote.m */,
 				B5EFB1C41B31BAA2007608A3 /* NotificationsServiceRemote.swift */,
 				93D6D6461924FDAD00A4F44A /* PostCategoryServiceRemote.h */,
 				E1DF5DF919E7CFAE004E70D5 /* PostCategoryServiceRemoteREST.h */,
@@ -2500,6 +2507,8 @@
 				E1A6DBDE19DC7D140071AC1E /* PostServiceRemoteREST.m */,
 				E1A6DBDF19DC7D140071AC1E /* PostServiceRemoteXMLRPC.h */,
 				E1A6DBE019DC7D140071AC1E /* PostServiceRemoteXMLRPC.m */,
+				FA7D87CC1B82814800B608B9 /* PublicizerServiceRemote.h */,
+				FA7D87CD1B82814800B608B9 /* PublicizerServiceRemote.m */,
 				B535209E1AF7EFEC00B33BA8 /* PushAuthenticationServiceRemote.swift */,
 				5D3D559818F88C5E00782892 /* ReaderPostServiceRemote.h */,
 				5D3D559918F88C5E00782892 /* ReaderPostServiceRemote.m */,
@@ -2512,6 +2521,8 @@
 				E1249B471940AE550035E895 /* ServiceRemoteXMLRPC.h */,
 				E1F8E1241B0B422C0073E628 /* JetpackServiceRemote.h */,
 				E1F8E1251B0B422C0073E628 /* JetpackServiceRemote.m */,
+				FA88B4261BA8C00D005D9A22 /* SharerServiceRemote.h */,
+				FA88B4271BA8C00D005D9A22 /* SharerServiceRemote.m */,
 				FFC6ADDB1B56F3D2002F3C84 /* ThemeServiceRemote.h */,
 				FFC6ADDC1B56F3D2002F3C84 /* ThemeServiceRemote.m */,
 				5997383E1B87AD2600EC1C30 /* WordPressComServiceRemote.h */,
@@ -2843,6 +2854,8 @@
 				5D44EB371986D8BA008B7175 /* ReaderSiteService.m */,
 				5DBCD9D318F35D7500B32229 /* ReaderTopicService.h */,
 				5DBCD9D418F35D7500B32229 /* ReaderTopicService.m */,
+				FA88B4201BA8B40E005D9A22 /* SharerService.h */,
+				FA88B4211BA8B40E005D9A22 /* SharerService.m */,
 				319D6E7C19E447C80013871C /* SuggestionService.h */,
 				319D6E7D19E447C80013871C /* SuggestionService.m */,
 				59A9AB331B4C33A500A433DC /* ThemeService.h */,
@@ -3404,6 +3417,8 @@
 				5DED0E131B42E3E400431FCD /* RemoteSourcePostAttribution.m */,
 				5D9282F71B54697C00066CED /* RemoteReaderSiteInfo.h */,
 				5D9282F81B54697C00066CED /* RemoteReaderSiteInfo.m */,
+				FA88B4231BA8BC76005D9A22 /* RemoteSharer.h */,
+				FA88B4241BA8BC76005D9A22 /* RemoteSharer.m */,
 				598F86A51B67B7A000550C9C /* RemoteTheme.h */,
 				598F86A61B67B7A000550C9C /* RemoteTheme.m */,
 			);
@@ -4178,6 +4193,7 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				5D1D33CF1AE56250000DE623 /* RemoteUser.m in Sources */,
 				5D577D33189127BE00B964C3 /* PostGeolocationViewController.m in Sources */,
+				FA88B4221BA8B40E005D9A22 /* SharerService.m in Sources */,
 				1D3623260D0F684500981E51 /* WordPressAppDelegate.m in Sources */,
 				5D6C4B211B604425005E3C43 /* WPRichContentView.m in Sources */,
 				5D7DEA2919D488DD0032EE77 /* WPStyleGuide+ReaderComments.swift in Sources */,
@@ -4461,6 +4477,7 @@
 				5D000DE11AC0879600A7BAF9 /* PostCardActionBarItem.m in Sources */,
 				E1249B4319408C910035E895 /* RemoteComment.m in Sources */,
 				93DEB88219E5BF7100F9546D /* TodayExtensionService.m in Sources */,
+				FA88B4251BA8BC76005D9A22 /* RemoteSharer.m in Sources */,
 				5DE293C11AD8009E00825DE5 /* PostListFilter.m in Sources */,
 				5D42A3E2175E7452005CFF05 /* ReaderPost.m in Sources */,
 				5DA357A71B52D33B00FB724F /* OriginalSiteAttributionView.m in Sources */,
@@ -4512,6 +4529,7 @@
 				FF3DD6BE19F2B6B3003A52CB /* RemoteMedia.m in Sources */,
 				B574CE151B5E8EA800A84FFD /* NSMutableAttributedString+Helpers.swift in Sources */,
 				B5FD4543199D0F2800286FBB /* NotificationDetailsViewController.m in Sources */,
+				FA88B4281BA8C00D005D9A22 /* SharerServiceRemote.m in Sources */,
 				74D5FFD619ACDF6700389E8F /* WPLegacyEditPostViewController.m in Sources */,
 				B54E1DF41A0A7BBF00807537 /* NotificationMediaDownloader.swift in Sources */,
 				E174F6E6172A73960004F23A /* WPAccount.m in Sources */,

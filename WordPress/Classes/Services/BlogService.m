@@ -22,6 +22,7 @@
 #import "RemoteBlogSettings.h"
 #import "ContextManager.h"
 #import "PublicizerService.h"
+#import "SharerService.h"
 
 NSString *const LastUsedBlogURLDefaultsKey = @"LastUsedBlogURLDefaultsKey";
 NSString *const EditPostViewControllerLastUsedBlogURLOldKey = @"EditPostViewControllerLastUsedBlogURL";
@@ -367,6 +368,11 @@ CGFloat const OneHourInSeconds = 60.0 * 60.0;
         [publicizerService syncPublicizersForBlog:blog
                                           success:nil
                                           failure:^(NSError *error) { DDLogError(@"Failed syncing publicizers for blog %@: %@", blog.url, error); }];
+        
+        SharerService *sharerService = [[SharerService alloc] initWithManagedObjectContext:self.managedObjectContext];
+        [sharerService syncSharersForBlog:blog
+                                  success:nil
+                                  failure:^(NSError *error) { DDLogError(@"Failed syncing sharers for blog %@: %@", blog.url, error); }];
     }
 }
 
