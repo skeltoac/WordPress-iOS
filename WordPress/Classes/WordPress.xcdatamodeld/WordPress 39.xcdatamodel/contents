@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7701" systemVersion="14F27" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="8195" systemVersion="14F27" minimumToolsVersion="Automatic">
     <entity name="AbstractPost" representedClassName="AbstractPost" isAbstract="YES" parentEntity="BasePost">
         <attribute name="metaIsLocal" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="metaPublishImmediately" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
@@ -82,6 +82,15 @@
         <attribute name="currentThemeId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="defaultCategoryID" optional="YES" attributeType="Integer 32" defaultValueString="1" syncable="YES"/>
         <attribute name="defaultPostFormat" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="disableLikes" attributeType="Boolean" defaultValueString="NO">
+            <userInfo/>
+        </attribute>
+        <attribute name="disableReblogs" attributeType="Boolean" defaultValueString="NO">
+            <userInfo/>
+        </attribute>
+        <attribute name="enableCommentLikes" attributeType="Boolean" defaultValueString="YES">
+            <userInfo/>
+        </attribute>
         <attribute name="geolocationEnabled" attributeType="Boolean" defaultValueString="NO">
             <userInfo/>
         </attribute>
@@ -116,6 +125,18 @@
             <userInfo/>
         </attribute>
         <attribute name="privacy" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="sharingButtonStyle" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <attribute name="sharingLabel" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
+        <attribute name="sharingShow" optional="YES" attributeType="Transformable">
+            <userInfo/>
+        </attribute>
+        <attribute name="sharingTwitter" optional="YES" attributeType="String">
+            <userInfo/>
+        </attribute>
         <attribute name="url" attributeType="String">
             <userInfo/>
         </attribute>
@@ -493,7 +514,7 @@
         <element name="AbstractPost" positionX="0" positionY="0" width="128" height="135"/>
         <element name="Account" positionX="0" positionY="0" width="128" height="195"/>
         <element name="BasePost" positionX="0" positionY="0" width="128" height="300"/>
-        <element name="Blog" positionX="0" positionY="0" width="128" height="613"/>
+        <element name="Blog" positionX="0" positionY="0" width="128" height="720"/>
         <element name="Category" positionX="0" positionY="0" width="128" height="120"/>
         <element name="Comment" positionX="0" positionY="0" width="128" height="343"/>
         <element name="Media" positionX="0" positionY="0" width="128" height="375"/>
@@ -509,8 +530,8 @@
         <element name="ReaderSite" positionX="9" positionY="153" width="128" height="163"/>
         <element name="ReaderSiteTopic" positionX="36" positionY="180" width="128" height="195"/>
         <element name="ReaderTagTopic" positionX="27" positionY="171" width="128" height="90"/>
+        <element name="Sharer" positionX="18" positionY="288" width="128" height="150"/>
         <element name="SourcePostAttribution" positionX="9" positionY="153" width="128" height="225"/>
         <element name="Theme" positionX="9" positionY="153" width="128" height="225"/>
-        <element name="Sharer" positionX="18" positionY="288" width="128" height="150"/>
     </elements>
 </model>

@@ -80,6 +80,14 @@ typedef NS_ENUM(NSInteger, SiteVisibility) {
 @property (nonatomic, strong, readwrite) NSNumber *defaultCategoryID;
 @property (nonatomic, strong, readwrite) NSString *defaultPostFormat;
 @property (nonatomic, assign, readwrite) SiteVisibility siteVisibility;
+@property (nonatomic, assign, readwrite) BOOL disableLikes;
+@property (nonatomic, assign, readwrite) BOOL disableReblogs;
+@property (nonatomic, assign, readwrite) BOOL enableCommentLikes;
+@property (nonatomic, strong, readwrite) NSString *sharingButtonStyle;
+@property (nonatomic, strong, readwrite) NSString *sharingLabel;
+@property (nonatomic, strong, readwrite) NSArray *sharingShow;
+@property (nonatomic, strong, readwrite) NSString *sharingTwitter;
+
 /**
  Flags whether the current user is an admin on the blog.
  */

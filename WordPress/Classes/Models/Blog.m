@@ -66,6 +66,13 @@ NSString * const PostFormatStandard = @"standard";
 @dynamic defaultCategoryID;
 @dynamic defaultPostFormat;
 @dynamic privacy;
+@dynamic disableLikes;
+@dynamic disableReblogs;
+@dynamic enableCommentLikes;
+@dynamic sharingButtonStyle;
+@dynamic sharingLabel;
+@dynamic sharingShow;
+@dynamic sharingTwitter;
 
 @synthesize api = _api;
 @synthesize isSyncingPosts;
