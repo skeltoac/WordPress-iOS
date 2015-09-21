@@ -3,6 +3,7 @@
 #import "Blog.h"
 #import "BlogServiceRemoteREST.h"
 #import "WordPressComApi.h"
+#import "SharerServiceRemote.h"
 
 @interface BlogServiceRemoteRESTTests : XCTestCase
 @end
@@ -149,6 +150,26 @@
     XCTAssertThrows([service syncConnectionsForBlog:nil
                                             success:^(NSArray *connections) {}
                                             failure:^(NSError *error) {}]);
+}
+
+#pragma mark - Sharer management for a blog
+
+- (void)testThatGetSharersForBlogWorks
+{
+    WordPressComApi *api = OCMStrictClassMock([WordPressComApi class]);
+    SharerServiceRemote *service = nil;
+    
+    NSString *url = @"v1.1/meta/sharing-buttons/";
+    
+    OCMStub([api GET:[OCMArg isEqual:url]
+          parameters:[OCMArg isNil]
+             success:[OCMArg isNotNil]
+             failure:[OCMArg isNotNil]]);
+    
+    XCTAssertNoThrow(service = [[SharerServiceRemote alloc] initWithApi:api]);
+    
+    [service getSharersWithSuccess:^(NSArray *sharers){}
+                           failure:^(NSError *error) {}];
 }
 
 @end
