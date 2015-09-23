@@ -10,12 +10,12 @@ data model as well as any custom migrations.
 - `Blog` added a new attribute called `connections` to store the blog's connections array
 - Added `Sharer` to store the services with actionable sharing
 - `Blog` added a new relationship called `sharers` to store available Sharers
-- `Blog` added a new boolean attribute called `disableLikes` to store the style of sharing buttons
-- `Blog` added a new boolean attribute called `disableReblogs` to store the style of sharing buttons
-- `Blog` added a new boolean attribute called `enableCommentLikes` to store the style of sharing buttons
+- `Blog` added a new boolean attribute called `disableLikes` to store content like availability
+- `Blog` added a new boolean attribute called `disableReblogs` to store reblog availability
+- `Blog` added a new boolean attribute called `enableCommentLikes` to store comment likability
 - `Blog` added a new string attribute called `sharingButtonStyle` to store the style of sharing buttons
 - `Blog` added a new string attribute called `sharingLabel` to store the "Share This:" label
-- `Blog` added a new array attribute called `sharingShow` to store the types displaying sharing buttons
+- `Blog` added a new array attribute called `sharingShow` to store the content types displaying sharing buttons
 - `Blog` added a new string attribute called `sharingTwitter` to store an account included in tweets
 
 ## WordPress 38 (@sergioestevao 2015-08-21)

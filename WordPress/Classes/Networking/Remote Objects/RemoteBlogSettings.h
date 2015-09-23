@@ -11,4 +11,13 @@
 @property (copy) NSNumber *defaultCategory;
 @property (copy) NSString *defaultPostFormat;
 
+// Sharing
+@property (copy) NSNumber *disableLikes;
+@property (copy) NSNumber *disableReblogs;
+@property (copy) NSNumber *enableCommentLikes;
+@property (copy) NSString *sharingButtonStyle;
+@property (copy) NSString *sharingLabel;
+@property (copy) NSArray *sharingShow;
+@property (copy) NSString *sharingTwitter;
+
 @end

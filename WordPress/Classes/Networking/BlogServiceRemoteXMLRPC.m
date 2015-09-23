@@ -117,7 +117,16 @@
     }];
 }
 
-
+- (void)updateSharingForBlog:(Blog *)blog
+                     success:(SuccessHandler)success
+                     failure:(void (^)(NSError *error))failure
+{
+    // Sharing settings only available via REST API
+    if (failure) {
+        NSError *error = [NSError errorWithDomain:WPXMLRPCClientErrorDomain code:NSURLErrorBadURL userInfo:nil];
+        failure(error);
+    }
+}
 
 - (WPXMLRPCRequestOperation *)operationForOptionsWithBlog:(Blog *)blog
                                                   success:(OptionsHandler)success
@@ -199,6 +208,9 @@
     if (json[@"blog_public"]) {
         remoteSettings.privacy = [json numberForKeyPath:@"blog_public.value"];
     }
+    
+    // Sharing settings only available via REST API
+    
     return remoteSettings;
 }
 

@@ -89,6 +89,17 @@
                      success:(void (^)())success
                      failure:(void (^)(NSError *error))failure;
 
+/**
+ *  Update blog sharing settings to server
+ *
+ *  @param blog    the blog to update
+ *  @param success a block that is invoked when the update is sucessfull
+ *  @param failure a block that in invoked when the update fails.
+ */
+- (void)updateSharingForBlog:(Blog *)blog
+                     success:(void (^)())success
+                     failure:(void (^)(NSError *error))failure;
+
 
 /**
  *  Update the password for the blog.

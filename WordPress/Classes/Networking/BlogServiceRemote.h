@@ -77,4 +77,15 @@ typedef void (^SuccessHandler)();
                     success:(SuccessHandler)success
                     failure:(void (^)(NSError *error))failure;
 
+/**
+ *  @brief      Updates the blog sharing configuratino.
+ *
+ *  @param      blog        The blog to update.  Cannot be nil.
+ *  @param      success     The block that will be executed on success.  Can be nil.
+ *  @param      failure     The block that will be executed on failure.  Can be nil.
+ */
+- (void)updateSharingForBlog:(Blog *)blog
+                     success:(SuccessHandler)success
+                     failure:(void (^)(NSError *error))failure;
+
 @end

@@ -246,6 +246,27 @@ CGFloat const OneHourInSeconds = 60.0 * 60.0;
                 if (settings.privacy) {
                     blog.siteVisibility = (SiteVisibility)[settings.privacy integerValue];
                 }
+                if (settings.disableLikes) {
+                    blog.disableLikes = [settings.disableLikes boolValue];
+                }
+                if (settings.disableReblogs) {
+                    blog.disableReblogs = [settings.disableReblogs boolValue];
+                }
+                if (settings.enableCommentLikes) {
+                    blog.enableCommentLikes = [settings.enableCommentLikes boolValue];
+                }
+                if (settings.sharingButtonStyle) {
+                    blog.sharingButtonStyle = settings.sharingButtonStyle;
+                }
+                if (settings.sharingLabel) {
+                    blog.sharingLabel = settings.sharingLabel;
+                }
+                if (settings.sharingShow) {
+                    blog.sharingShow = settings.sharingShow;
+                }
+                if (settings.sharingTwitter) {
+                    blog.sharingTwitter = settings.sharingTwitter;
+                }
                 [self.managedObjectContext save:nil];
                 if (success) {
                     success();
@@ -274,6 +295,27 @@ CGFloat const OneHourInSeconds = 60.0 * 60.0;
                                 }];
                               }
                               failure:failure];
+    }];
+}
+
+- (void)updateSharingForBlog:(Blog *)blog
+                     success:(SuccessHandler)success
+                     failure:(void (^)(NSError *error))failure
+{
+    NSManagedObjectID *blogID = [blog objectID];
+    [self.managedObjectContext performBlock:^{
+        Blog *blogInContext = (Blog *)[self.managedObjectContext objectWithID:blogID];
+        id<BlogServiceRemote> remote = [self remoteForBlog:blogInContext];
+        [remote updateSharingForBlog:blogInContext
+                             success:^() {
+                                 [self.managedObjectContext performBlock:^{
+                                     [self.managedObjectContext save:nil];
+                                     if (success) {
+                                         success();
+                                     }
+                                 }];
+                             }
+                             failure:failure];
     }];
 }
 

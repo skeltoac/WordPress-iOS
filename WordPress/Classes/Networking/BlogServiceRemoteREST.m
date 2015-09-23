@@ -10,6 +10,13 @@ static NSString const *BlogRemoteDescriptionKey         = @"description";
 static NSString const *BlogRemoteSettingsKey            = @"settings";
 static NSString const *BlogRemoteDefaultCategoryKey     = @"default_category";
 static NSString const *BlogRemoteDefaultPostFormatKey   = @"default_post_format";
+static NSString const *BlogRemoteDisableLikesKey        = @"disabled_likes";
+static NSString const *BlogRemoteDisableReblogsKey      = @"disabled_reblogs";
+static NSString const *BlogRemoteEnableCommentLikesKey  = @"jetpack_comment_likes_enabled";
+static NSString const *BlogRemoteSharingButtonStyleKey  = @"sharing_button_style";
+static NSString const *BlogRemoteSharingLabelKey        = @"sharing_label";
+static NSString const *BlogRemoteSharingShowKey         = @"sharing_show";
+static NSString const *BlogRemoteSharingTwitterKey      = @"twitter_via";
 
 
 @implementation BlogServiceRemoteREST
@@ -154,18 +161,50 @@ static NSString const *BlogRemoteDefaultPostFormatKey   = @"default_post_format"
                       failure:(void (^)(NSError *error))failure
 {
     NSParameterAssert([blog isKindOfClass:[Blog class]]);
-    NSDictionary *parameters = @{ @"blogname" : blog.blogName,
-                                  @"blogdescription" : blog.blogTagline,
-                                  @"default_category" : blog.defaultCategoryID,
-                                  @"default_post_format" : blog.defaultPostFormat,
-                                  @"blog_public" : @(blog.siteVisibility)
-                                  };
+    NSDictionary *items = @{ @"blogname" : blog.blogName,
+                             @"blogdescription" : blog.blogTagline,
+                             @"default_category" : blog.defaultCategoryID,
+                             @"default_post_format" : blog.defaultPostFormat,
+                             @"blog_public" : @(blog.siteVisibility)
+                             };
+    
+    [self updateSettingsItems:items
+                      forBlog:blog
+                      success:success
+                      failure:failure];
+}
+
+- (void)updateSharingForBlog:(Blog *)blog
+                     success:(SuccessHandler)success
+                     failure:(void (^)(NSError *error))failure
+{
+    NSParameterAssert([blog isKindOfClass:[Blog class]]);
+    NSDictionary *items = @{ BlogRemoteDisableLikesKey : @(blog.disableLikes),
+                             BlogRemoteDisableReblogsKey : @(blog.disableReblogs),
+                             BlogRemoteEnableCommentLikesKey : @(blog.enableCommentLikes),
+                             BlogRemoteSharingButtonStyleKey : blog.sharingButtonStyle ?: @"",
+                             BlogRemoteSharingLabelKey : blog.sharingLabel ?: @"",
+                             BlogRemoteSharingShowKey : blog.sharingShow ?: @[],
+                             BlogRemoteSharingTwitterKey : blog.sharingTwitter ?: @"",
+                             };
+    
+    [self updateSettingsItems:items
+                      forBlog:blog
+                      success:success
+                      failure:failure];
+}
+
+- (void)updateSettingsItems:(NSDictionary *)items
+                    forBlog:(Blog *)blog
+                    success:(SuccessHandler)success
+                    failure:(void (^)(NSError *error))failure
+{
     NSString *path = [NSString stringWithFormat:@"sites/%@/settings?context=edit", blog.dotComID];
     NSString *requestUrl = [self pathForEndpoint:path
                                      withVersion:ServiceRemoteRESTApiVersion_1_1];
     
     [self.api POST:requestUrl
-        parameters:parameters
+        parameters:items
            success:^(AFHTTPRequestOperation *operation, id responseObject) {
                if (![responseObject isKindOfClass:[NSDictionary class]]) {
                    if (failure) {
@@ -276,6 +315,28 @@ static NSString const *BlogRemoteDefaultPostFormatKey   = @"default_post_format"
     }
     
     remoteSettings.privacy = [json numberForKeyPath:@"settings.blog_public"];
+    
+    remoteSettings.disableLikes = [rawSettings numberForKey:BlogRemoteDisableLikesKey];
+    remoteSettings.disableReblogs = [rawSettings numberForKey:BlogRemoteDisableReblogsKey];
+    remoteSettings.enableCommentLikes = [rawSettings numberForKey:BlogRemoteEnableCommentLikesKey];
+    remoteSettings.sharingButtonStyle = [rawSettings stringForKey:BlogRemoteSharingButtonStyleKey];
+    remoteSettings.sharingLabel = [rawSettings stringForKey:BlogRemoteSharingLabelKey];
+    remoteSettings.sharingShow = [rawSettings arrayForKey:BlogRemoteSharingShowKey];
+    remoteSettings.sharingTwitter = [rawSettings stringForKey:BlogRemoteSharingTwitterKey];
+
+#warning are our sharing settings here?
+    NSArray *sharingSettings = @[
+                                      @"sharing_label",
+                                      @"sharing_button_style",
+                                      @"disabled_reblogs",
+                                      @"disabled_likes",
+                                      @"sharing_show",
+                                      @"jetpack_comment_likes_enabled",
+                                      @"twitter_via",
+                                      ];
+    for (NSString *setting in sharingSettings) {
+        NSLog(@"sharing: %@ - %@", setting, rawSettings[setting]);
+    }
     
     return remoteSettings;
 }
