@@ -199,7 +199,7 @@ DEPENDENCIES:
   - WordPress-AppbotX (from `https://github.com/wordpress-mobile/appbotx.git`, commit
     `87bae8c770cfc4e053119f2d00f76b2f653b26ce`)
   - WordPress-iOS-Editor (from `https://github.com/wordpress-mobile/WordPress-Editor-iOS.git`,
-    commit `1b614724fbc005be4346c7870498658c8b537267`)
+    commit `cae3901ad1e544a2f2e7952a719c3f026036da8a`)
   - WordPress-iOS-Shared (= 0.4.4)
   - WordPressApi (from `https://github.com/wordpress-mobile/WordPress-API-iOS.git`)
   - WordPressCom-Analytics-iOS (= 0.0.38)
@@ -223,7 +223,7 @@ EXTERNAL SOURCES:
     :commit: 87bae8c770cfc4e053119f2d00f76b2f653b26ce
     :git: https://github.com/wordpress-mobile/appbotx.git
   WordPress-iOS-Editor:
-    :commit: 1b614724fbc005be4346c7870498658c8b537267
+    :commit: cae3901ad1e544a2f2e7952a719c3f026036da8a
     :git: https://github.com/wordpress-mobile/WordPress-Editor-iOS.git
   WordPressApi:
     :git: https://github.com/wordpress-mobile/WordPress-API-iOS.git
@@ -242,7 +242,7 @@ CHECKOUT OPTIONS:
     :commit: 87bae8c770cfc4e053119f2d00f76b2f653b26ce
     :git: https://github.com/wordpress-mobile/appbotx.git
   WordPress-iOS-Editor:
-    :commit: 1b614724fbc005be4346c7870498658c8b537267
+    :commit: cae3901ad1e544a2f2e7952a719c3f026036da8a
     :git: https://github.com/wordpress-mobile/WordPress-Editor-iOS.git
   WordPressApi:
     :commit: 4bc8da6f5ec461cb980170a14d8b149c59d847b5
@@ -282,7 +282,7 @@ SPEC CHECKSUMS:
   UIAlertView+Blocks: 45c3d3b7194906702d3e9a14c7ece5581505646d
   UIDeviceIdentifier: f7b32c087f4d4957badbb6181a4c78520c5806ae
   WordPress-AppbotX: d0ebf5bb2d70bee56272796e1e7a97787b5bfb14
-  WordPress-iOS-Editor: 81d1f10e548c9fabd2ea99dbf0bcfa0669078667
+  WordPress-iOS-Editor: e80434cf70b18f8edb77c02e56babbbddbb65f1d
   WordPress-iOS-Shared: 345f7c1c49d298114353c3856c53317f0d826078
   WordPressApi: cb145d3c92ed54d4dbe70108d15f17ce3da3ad5d
   WordPressCom-Analytics-iOS: 79bb95bf36a152caea98c0ad9cef6fa679174524
