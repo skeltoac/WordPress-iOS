@@ -99,7 +99,21 @@ public class ThemeBrowserViewController : UICollectionViewController, UICollecti
             },
             failure: {(error : NSError!) -> Void in
                 DDLogSwift.logError("Error updating themes: \(error.localizedDescription)")
-            })
+        })
+    }
+
+    private func currentTheme() -> Theme? {
+        guard let themeId = blog.currentThemeId where !themeId.isEmpty else {
+            return nil
+        }
+        
+        for theme in blog.themes as! Set<Theme> {
+            if theme.themeId == themeId {
+                return theme
+            }
+        }
+        
+        return nil
     }
     
     // MARK: - UICollectionViewController protocol UICollectionViewDataSource
@@ -120,7 +134,10 @@ public class ThemeBrowserViewController : UICollectionViewController, UICollecti
     }
     
     public override func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "ThemeBrowserHeaderView", forIndexPath: indexPath)
+        
+        let header = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: ThemeBrowserHeaderView.reuseIdentifier, forIndexPath: indexPath) as! ThemeBrowserHeaderView
+        header.configureWithTheme(currentTheme())
+        
         return header
     }
     
@@ -156,7 +173,7 @@ public class ThemeBrowserViewController : UICollectionViewController, UICollecti
      *  @returns    The requested cell width.
      */
     private func cellWidthForFrameWidth(parentViewWidth : CGFloat) -> CGFloat {
-        let numberOfColumns = trunc(parentViewWidth / minimumColumnWidth)
+        let numberOfColumns = max(1, trunc(parentViewWidth / minimumColumnWidth))
         let numberOfMargins = numberOfColumns + 1
         let marginsWidth = numberOfMargins * marginWidth
         let columnsWidth = parentViewWidth - marginsWidth
